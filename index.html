@@ -62,10 +62,10 @@ header{padding:calc(14px + var(--safe-top)) 18px 12px;background:var(--paper);bo
 .benefit-row:active{background:var(--paper2);}
 .b-main{flex:1;min-width:0;}
 .b-desc{font-size:13px;font-weight:500;color:var(--ink);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
-.b-meta{display:flex;align-items:center;gap:5px;margin-top:3px;flex-wrap:wrap;}
-.b-date{font-size:11px;color:var(--ink3);font-family:'DM Mono',monospace;background:var(--paper2);padding:1px 7px;border-radius:8px;white-space:nowrap;}
-.b-recur{font-size:10px;color:var(--orange);font-family:'DM Mono',monospace;background:var(--orange-bg);padding:1px 6px;border-radius:8px;white-space:nowrap;}
 .b-notes{font-size:11px;color:var(--ink3);margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.b-date-col{display:flex;flex-direction:column;align-items:flex-end;gap:2px;flex-shrink:0;min-width:76px;}
+.b-date{font-size:11px;color:var(--ink3);font-family:'DM Mono',monospace;white-space:nowrap;text-align:right;}
+.b-recur{font-size:10px;color:var(--orange);font-family:'DM Mono',monospace;white-space:nowrap;text-align:right;}
 .b-amt{font-family:'DM Mono',monospace;font-size:12px;color:var(--orange);flex-shrink:0;font-weight:500;min-width:28px;text-align:right;}
 .status-badge{display:inline-flex;align-items:center;gap:3px;font-size:11px;font-family:'DM Mono',monospace;padding:4px 8px;border-radius:20px;cursor:pointer;border:none;white-space:nowrap;flex-shrink:0;transition:opacity .15s;min-width:68px;justify-content:center;font-weight:500;}
 .status-badge:active{opacity:.7;}
@@ -315,7 +315,7 @@ function advanceAnnual(s){
   return formatDate(new Date(Date.UTC(d.getUTCFullYear()+1,d.getUTCMonth(),d.getUTCDate(),12)));
 }
 function computeAutoStatus(b){
-  if(b.status==='Done'||b.status==='Waiting')return b.status;
+  if(b.status==='Waiting')return b.status;
   if(!b.recurring||b.recurring==='none')return b.status;
   var d=parseDate(b.date);if(!d)return b.status;
   var today=todayUTC();
@@ -330,6 +330,7 @@ function applyAutoStatus(){
   var changed=false;
   appData.cards.forEach(function(c){
     c.benefits.forEach(function(b){
+      if(b.status==='Done'||b.status==='Waiting')return; // don't auto-change manually set Done/Waiting
       var ns=computeAutoStatus(b);
       if(ns!==b.status){b.status=ns;changed=true;}
     });
@@ -448,11 +449,11 @@ function render(){
       return '<div class="benefit-row">'+
         '<div class="b-main">'+
           '<div class="b-desc">'+esc(b.desc)+'</div>'+
-          '<div class="b-meta">'+
-            (b.date?'<span class="b-date">'+esc(b.date)+'</span>':'')+
-            (rl?'<span class="b-recur">'+rl+'</span>':'')+
-          '</div>'+
           (b.notes?'<div class="b-notes">'+esc(b.notes)+'</div>':'')+
+        '</div>'+
+        '<div class="b-date-col">'+
+          (b.date?'<div class="b-date">'+esc(b.date)+'</div>':'')+
+          (rl?'<div class="b-recur">'+rl+'</div>':'')+
         '</div>'+
         (b.amt?'<div class="b-amt">'+esc(b.amt)+'</div>':'')+
         '<button class="status-badge '+scls(b.status)+'" onclick="tapStatus(\''+card.id+'\','+b.id+',this)">'+sicon(b.status)+' '+b.status+'</button>'+
