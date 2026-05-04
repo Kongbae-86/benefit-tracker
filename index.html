@@ -10,275 +10,114 @@
 <title>Benefit Tracker</title>
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Crimson+Pro:ital,wght@0,400;0,600;1,400&family=DM+Sans:wght@400;500;600&family=DM+Mono:wght@400;500&display=swap');
-
 *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;}
 :root{
-  --paper: #FAF7F2;
-  --paper2: #F3EDE3;
-  --paper3: #EBE3D5;
-  --ink: #2C2416;
-  --ink2: #5C4F3A;
-  --ink3: #9C8E7A;
-  --orange: #D97026;
-  --orange-light: #F5A05A;
-  --orange-bg: #FDF0E6;
-  --orange-border: #F0C49A;
-  --done-color: #2E7D52;
-  --done-bg: #EAF5EE;
-  --todo-color: #C25B00;
-  --todo-bg: #FEF3E8;
-  --waiting-color: #1D6FA4;
-  --waiting-bg: #E8F4FD;
-  --early-color: #8A7D6A;
-  --early-bg: #F5F1EB;
-  --border: #DDD5C6;
-  --shadow: 0 2px 12px rgba(44,36,22,0.08);
-  --safe-top: env(safe-area-inset-top, 0px);
-  --safe-bottom: env(safe-area-inset-bottom, 0px);
+  --paper:#FAF7F2;--paper2:#F3EDE3;--paper3:#EBE3D5;
+  --ink:#2C2416;--ink2:#5C4F3A;--ink3:#9C8E7A;
+  --orange:#D97026;--orange-light:#F5A05A;--orange-bg:#FDF0E6;--orange-border:#F0C49A;
+  --done-color:#2E7D52;--done-bg:#EAF5EE;
+  --todo-color:#C25B00;--todo-bg:#FEF3E8;
+  --waiting-color:#1D6FA4;--waiting-bg:#E8F4FD;
+  --early-color:#8A7D6A;--early-bg:#F5F1EB;
+  --border:#DDD5C6;--shadow:0 2px 12px rgba(44,36,22,0.08);
+  --safe-top:env(safe-area-inset-top,0px);--safe-bottom:env(safe-area-inset-bottom,0px);
 }
 html,body{height:100%;overflow:hidden;background:var(--paper);}
 body{font-family:'DM Sans',sans-serif;color:var(--ink);display:flex;flex-direction:column;}
-
-/* ── Header ── */
-header{
-  padding:calc(14px + var(--safe-top)) 18px 12px;
-  background:var(--paper);
-  border-bottom:1px solid var(--border);
-  display:flex;align-items:center;justify-content:space-between;
-  flex-shrink:0;
-}
-.logo{
-  font-family:'Crimson Pro',serif;
-  font-size:20px;font-weight:600;color:var(--orange);
-  letter-spacing:-.01em;
-}
+header{padding:calc(14px + var(--safe-top)) 18px 12px;background:var(--paper);border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;flex-shrink:0;}
+.logo{font-family:'Crimson Pro',serif;font-size:20px;font-weight:600;color:var(--orange);}
 .logo span{color:var(--ink2);font-weight:400;font-style:italic;}
-.hdr-right{display:flex;align-items:center;gap:10px;}
+.hdr-right{display:flex;align-items:center;gap:8px;}
 .sync-dot{width:7px;height:7px;border-radius:50%;background:var(--border);flex-shrink:0;transition:background .3s;}
-.sync-dot.saving{background:var(--orange-light);}
-.sync-dot.saved{background:var(--done-color);}
-.sync-dot.error{background:#D94040;}
+.sync-dot.saving{background:var(--orange-light);}.sync-dot.saved{background:var(--done-color);}.sync-dot.error{background:#D94040;}
 .sync-label{font-size:11px;color:var(--ink3);font-family:'DM Mono',monospace;}
-
-/* ── Summary ── */
-.summary-bar{
-  display:flex;border-bottom:1px solid var(--border);
-  background:var(--orange-bg);flex-shrink:0;
-}
-.summary-item{
-  flex:1;padding:10px 8px;text-align:center;
-  border-right:1px solid var(--orange-border);
-}
+.summary-bar{display:flex;border-bottom:1px solid var(--border);background:var(--orange-bg);flex-shrink:0;}
+.summary-item{flex:1;padding:10px 8px;text-align:center;border-right:1px solid var(--orange-border);}
 .summary-item:last-child{border-right:none;}
 .summary-val{font-family:'DM Mono',monospace;font-size:15px;font-weight:500;}
 .summary-label{font-size:10px;color:var(--ink3);text-transform:uppercase;letter-spacing:.06em;margin-top:2px;}
-.v-done{color:var(--done-color);}
-.v-todo{color:var(--todo-color);}
-.v-waiting{color:var(--waiting-color);}
-.v-orange{color:var(--orange);}
-
-/* ── Filters ── */
-.filter-bar{
-  padding:8px 14px;display:flex;gap:6px;
-  border-bottom:1px solid var(--border);
-  background:var(--paper);
-  flex-shrink:0;overflow-x:auto;scrollbar-width:none;
-}
+.v-done{color:var(--done-color);}.v-todo{color:var(--todo-color);}.v-waiting{color:var(--waiting-color);}.v-orange{color:var(--orange);}
+.filter-bar{padding:8px 14px;display:flex;gap:6px;border-bottom:1px solid var(--border);background:var(--paper);flex-shrink:0;overflow-x:auto;scrollbar-width:none;}
 .filter-bar::-webkit-scrollbar{display:none;}
 .filter-section{display:flex;gap:5px;align-items:center;flex-shrink:0;}
 .filter-divider{width:1px;background:var(--border);height:18px;margin:0 3px;flex-shrink:0;}
-.fbtn{
-  font-size:12px;padding:5px 12px;border-radius:20px;
-  border:1px solid var(--border);background:transparent;
-  color:var(--ink3);cursor:pointer;transition:all .15s;white-space:nowrap;
-  font-family:'DM Sans',sans-serif;flex-shrink:0;
-}
-.fbtn.active{
-  color:var(--orange);border-color:var(--orange);
-  background:var(--orange-bg);font-weight:500;
-}
-
-/* ── Scroll area ── */
-.scroll-area{
-  flex:1;overflow-y:auto;
-  padding:12px 12px calc(72px + var(--safe-bottom));
-  -webkit-overflow-scrolling:touch;
-  background:var(--paper2);
-}
-
-/* ── Card groups ── */
-.card-group{
-  background:var(--paper);border:1px solid var(--border);
-  border-radius:14px;overflow:hidden;margin-bottom:10px;
-  box-shadow:var(--shadow);
-}
-.card-header{
-  padding:13px 16px;display:flex;align-items:center;
-  justify-content:space-between;cursor:pointer;user-select:none;
-  background:var(--paper);
-}
+.fbtn{font-size:12px;padding:5px 12px;border-radius:20px;border:1px solid var(--border);background:transparent;color:var(--ink3);cursor:pointer;transition:all .15s;white-space:nowrap;font-family:'DM Sans',sans-serif;flex-shrink:0;}
+.fbtn.active{color:var(--orange);border-color:var(--orange);background:var(--orange-bg);font-weight:500;}
+.scroll-area{flex:1;overflow-y:auto;padding:12px 12px calc(72px + var(--safe-bottom));-webkit-overflow-scrolling:touch;background:var(--paper2);}
+.card-group{background:var(--paper);border:1px solid var(--border);border-radius:14px;overflow:hidden;margin-bottom:10px;box-shadow:var(--shadow);}
+.card-header{padding:13px 16px;display:flex;align-items:center;justify-content:space-between;cursor:pointer;user-select:none;}
 .card-header:active{background:var(--paper2);}
-.card-name{
-  font-family:'Crimson Pro',serif;font-size:17px;font-weight:600;
-  color:var(--ink);
-}
+.card-name{font-family:'Crimson Pro',serif;font-size:17px;font-weight:600;color:var(--ink);}
 .card-meta{font-size:11px;color:var(--ink3);font-family:'DM Mono',monospace;margin-top:2px;}
 .card-right{display:flex;align-items:center;gap:8px;}
 .stat-pills{display:flex;gap:4px;}
 .spill{font-size:10px;font-family:'DM Mono',monospace;padding:2px 8px;border-radius:10px;font-weight:500;}
-.pd{background:var(--done-bg);color:var(--done-color);}
-.pt{background:var(--todo-bg);color:var(--todo-color);}
-.pw{background:var(--waiting-bg);color:var(--waiting-color);}
+.pd{background:var(--done-bg);color:var(--done-color);}.pt{background:var(--todo-bg);color:var(--todo-color);}.pw{background:var(--waiting-bg);color:var(--waiting-color);}
 .chevron{color:var(--ink3);font-size:11px;transition:transform .2s;flex-shrink:0;}
 .chevron.open{transform:rotate(90deg);}
 .card-body{display:none;border-top:1px solid var(--border);}
 .card-body.open{display:block;}
-
-/* ── Benefit rows ── */
-.benefit-row{
-  display:flex;align-items:center;padding:11px 16px;
-  gap:10px;border-bottom:1px solid var(--paper3);
-}
+.benefit-row{display:flex;align-items:center;padding:10px 16px;gap:8px;border-bottom:1px solid var(--paper3);}
 .benefit-row:last-of-type{border-bottom:none;}
 .benefit-row:active{background:var(--paper2);}
 .b-main{flex:1;min-width:0;}
 .b-desc{font-size:13px;font-weight:500;color:var(--ink);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
-.b-sub{font-size:11px;color:var(--ink3);font-family:'DM Mono',monospace;margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
-.b-amt{font-family:'DM Mono',monospace;font-size:13px;color:var(--orange);flex-shrink:0;font-weight:500;}
-
-.status-badge{
-  display:inline-flex;align-items:center;gap:3px;
-  font-size:11px;font-family:'DM Mono',monospace;
-  padding:4px 10px;border-radius:20px;cursor:pointer;border:none;
-  white-space:nowrap;flex-shrink:0;transition:opacity .15s;
-  min-width:76px;justify-content:center;font-weight:500;
-}
+.b-meta{display:flex;align-items:center;gap:5px;margin-top:3px;flex-wrap:wrap;}
+.b-date{font-size:11px;color:var(--ink3);font-family:'DM Mono',monospace;background:var(--paper2);padding:1px 7px;border-radius:8px;white-space:nowrap;}
+.b-recur{font-size:10px;color:var(--orange);font-family:'DM Mono',monospace;background:var(--orange-bg);padding:1px 6px;border-radius:8px;white-space:nowrap;}
+.b-notes{font-size:11px;color:var(--ink3);margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.b-amt{font-family:'DM Mono',monospace;font-size:12px;color:var(--orange);flex-shrink:0;font-weight:500;min-width:28px;text-align:right;}
+.status-badge{display:inline-flex;align-items:center;gap:3px;font-size:11px;font-family:'DM Mono',monospace;padding:4px 8px;border-radius:20px;cursor:pointer;border:none;white-space:nowrap;flex-shrink:0;transition:opacity .15s;min-width:68px;justify-content:center;font-weight:500;}
 .status-badge:active{opacity:.7;}
-.s-done{background:var(--done-bg);color:var(--done-color);}
-.s-todo{background:var(--todo-bg);color:var(--todo-color);}
-.s-waiting{background:var(--waiting-bg);color:var(--waiting-color);}
-.s-tooearly{background:var(--early-bg);color:var(--early-color);}
-
-.row-edit-btn{
-  background:none;border:none;color:var(--ink3);
-  font-size:18px;padding:4px;cursor:pointer;flex-shrink:0;
-  line-height:1;
-}
+.s-done{background:var(--done-bg);color:var(--done-color);}.s-todo{background:var(--todo-bg);color:var(--todo-color);}.s-waiting{background:var(--waiting-bg);color:var(--waiting-color);}.s-tooearly{background:var(--early-bg);color:var(--early-color);}
+.row-edit-btn{background:none;border:none;color:var(--ink3);font-size:18px;padding:4px;cursor:pointer;flex-shrink:0;line-height:1;}
 .row-edit-btn:active{color:var(--orange);}
-
-.add-row-btn{
-  display:flex;align-items:center;gap:6px;width:100%;
-  padding:11px 16px;background:none;border:none;
-  border-top:1px dashed var(--border);
-  color:var(--ink3);font-size:12px;cursor:pointer;
-  font-family:'DM Sans',sans-serif;
-}
+.add-row-btn{display:flex;align-items:center;gap:6px;width:100%;padding:11px 16px;background:none;border:none;border-top:1px dashed var(--border);color:var(--ink3);font-size:12px;cursor:pointer;font-family:'DM Sans',sans-serif;}
 .add-row-btn:active{color:var(--orange);}
-
-/* ── FAB ── */
-.fab{
-  position:fixed;bottom:calc(20px + var(--safe-bottom));right:18px;
-  width:54px;height:54px;border-radius:50%;
-  background:var(--orange);color:white;
-  font-size:26px;border:none;cursor:pointer;
-  display:flex;align-items:center;justify-content:center;
-  box-shadow:0 4px 16px rgba(217,112,38,.4);z-index:50;
-  transition:transform .15s;
-}
+.fab{position:fixed;bottom:calc(20px + var(--safe-bottom));right:18px;width:54px;height:54px;border-radius:50%;background:var(--orange);color:white;font-size:26px;border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;box-shadow:0 4px 16px rgba(217,112,38,.4);z-index:50;transition:transform .15s;}
 .fab:active{transform:scale(.93);}
-
-/* ── Bottom sheet ── */
-.sheet-overlay{
-  position:fixed;inset:0;background:rgba(44,36,22,.5);z-index:100;
-  display:flex;align-items:flex-end;
-  opacity:0;pointer-events:none;transition:opacity .2s;
-}
+.sheet-overlay{position:fixed;inset:0;background:rgba(44,36,22,.5);z-index:100;display:flex;align-items:flex-end;opacity:0;pointer-events:none;transition:opacity .2s;}
 .sheet-overlay.open{opacity:1;pointer-events:all;}
-.sheet{
-  background:var(--paper);border-radius:22px 22px 0 0;
-  padding:0 18px calc(20px + var(--safe-bottom));width:100%;
-  max-height:92vh;overflow-y:auto;
-  transform:translateY(100%);transition:transform .25s ease;
-  border-top:1px solid var(--border);
-}
+.sheet{background:var(--paper);border-radius:22px 22px 0 0;padding:0 18px calc(20px + var(--safe-bottom));width:100%;max-height:92vh;overflow-y:auto;transform:translateY(100%);transition:transform .25s ease;border-top:1px solid var(--border);}
 .sheet-overlay.open .sheet{transform:translateY(0);}
 .sheet-handle{width:36px;height:4px;background:var(--border);border-radius:2px;margin:12px auto 16px;}
-.sheet-title{
-  font-family:'Crimson Pro',serif;font-size:20px;font-weight:600;
-  color:var(--ink);margin-bottom:18px;padding:0 2px;
-}
-
+.sheet-title{font-family:'Crimson Pro',serif;font-size:20px;font-weight:600;color:var(--ink);margin-bottom:18px;padding:0 2px;}
 .form-group{margin-bottom:14px;}
-.form-group label{
-  font-size:11px;font-family:'DM Mono',monospace;color:var(--ink3);
-  text-transform:uppercase;letter-spacing:.07em;display:block;margin-bottom:5px;
-}
-.form-group input,.form-group select,.form-group textarea{
-  width:100%;background:var(--paper2);border:1px solid var(--border);
-  border-radius:10px;color:var(--ink);
-  font-family:'DM Sans',sans-serif;font-size:15px;padding:11px 14px;
-  outline:none;-webkit-appearance:none;transition:border-color .15s;
-}
-.form-group input:focus,.form-group select:focus,.form-group textarea:focus{
-  border-color:var(--orange);background:var(--paper);
-}
+.form-group label{font-size:11px;font-family:'DM Mono',monospace;color:var(--ink3);text-transform:uppercase;letter-spacing:.07em;display:block;margin-bottom:5px;}
+.form-group input,.form-group select,.form-group textarea{width:100%;background:var(--paper2);border:1px solid var(--border);border-radius:10px;color:var(--ink);font-family:'DM Sans',sans-serif;font-size:15px;padding:11px 14px;outline:none;-webkit-appearance:none;transition:border-color .15s;}
+.form-group input:focus,.form-group select:focus,.form-group textarea:focus{border-color:var(--orange);background:var(--paper);}
 .form-group textarea{resize:none;height:68px;}
 .form-row{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
-
+.recur-hint{font-size:11px;color:var(--ink3);margin-top:-8px;margin-bottom:12px;line-height:1.5;padding:0 2px;}
 .sheet-actions{display:flex;gap:8px;margin-top:8px;}
-.btn{
-  font-family:'DM Sans',sans-serif;font-size:15px;font-weight:500;
-  padding:13px;border-radius:12px;border:none;cursor:pointer;
-  flex:1;transition:opacity .15s;
-}
+.btn{font-family:'DM Sans',sans-serif;font-size:15px;font-weight:500;padding:13px;border-radius:12px;border:none;cursor:pointer;flex:1;transition:opacity .15s;}
 .btn:active{opacity:.8;}
 .btn-primary{background:var(--orange);color:white;}
 .btn-ghost{background:var(--paper2);color:var(--ink);border:1px solid var(--border);}
 .btn-danger{background:#FEF0F0;color:#C0392B;border:1px solid #F5C6C6;}
-
 .card-mgmt{margin-top:20px;padding-top:16px;border-top:1px solid var(--border);display:none;}
 .card-mgmt-label{font-size:11px;color:var(--ink3);margin-bottom:10px;font-family:'DM Mono',monospace;text-transform:uppercase;letter-spacing:.07em;}
-
-/* ── Loading ── */
 .loading{text-align:center;padding:60px 20px;color:var(--ink3);font-size:14px;}
 .spinner{display:inline-block;width:28px;height:28px;border:2px solid var(--border);border-top-color:var(--orange);border-radius:50%;animation:spin .9s linear infinite;margin-bottom:12px;}
 @keyframes spin{to{transform:rotate(360deg);}}
 .empty-state{text-align:center;padding:40px;color:var(--ink3);font-size:13px;}
-
-/* ── Config screen ── */
-.config-screen{
-  position:fixed;inset:0;background:var(--paper);z-index:200;
-  display:flex;flex-direction:column;align-items:center;justify-content:center;
-  padding:32px 24px;
-}
+.config-screen{position:fixed;inset:0;background:var(--paper);z-index:200;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:32px 24px;}
 .config-screen.hidden{display:none;}
-.config-logo{
-  font-family:'Crimson Pro',serif;font-size:28px;font-weight:600;
-  color:var(--orange);margin-bottom:8px;
-}
+.config-logo{font-family:'Crimson Pro',serif;font-size:28px;font-weight:600;color:var(--orange);margin-bottom:8px;}
 .config-logo span{color:var(--ink2);font-weight:400;font-style:italic;}
 .config-title{font-size:18px;font-weight:600;color:var(--ink);margin-bottom:8px;text-align:center;}
 .config-sub{font-size:13px;color:var(--ink2);margin-bottom:28px;text-align:center;line-height:1.6;max-width:340px;}
 .config-input-wrap{width:100%;max-width:420px;margin-bottom:14px;}
 .config-input-wrap label{font-size:11px;font-family:'DM Mono',monospace;color:var(--ink3);text-transform:uppercase;letter-spacing:.07em;display:block;margin-bottom:6px;}
-.config-input-wrap input{
-  width:100%;background:var(--paper2);border:1px solid var(--border);
-  border-radius:10px;color:var(--ink);font-family:'DM Mono',monospace;
-  font-size:12px;padding:12px 14px;outline:none;
-}
+.config-input-wrap input{width:100%;background:var(--paper2);border:1px solid var(--border);border-radius:10px;color:var(--ink);font-family:'DM Mono',monospace;font-size:12px;padding:12px 14px;outline:none;}
 .config-input-wrap input:focus{border-color:var(--orange);}
-.config-btn{
-  width:100%;max-width:420px;background:var(--orange);color:white;
-  font-family:'DM Sans',sans-serif;font-size:15px;font-weight:600;
-  padding:14px;border-radius:12px;border:none;cursor:pointer;
-}
+.config-btn{width:100%;max-width:420px;background:var(--orange);color:white;font-family:'DM Sans',sans-serif;font-size:15px;font-weight:600;padding:14px;border-radius:12px;border:none;cursor:pointer;}
 .config-note{font-size:11px;color:var(--ink3);margin-top:18px;text-align:center;line-height:1.7;max-width:340px;}
 .config-note code{font-family:'DM Mono',monospace;color:var(--ink2);background:var(--paper3);padding:2px 6px;border-radius:4px;font-size:10px;}
 </style>
 </head>
 <body>
 
-<!-- Config screen -->
 <div class="config-screen" id="configScreen">
   <div class="config-logo">Benefits <span>Tracker</span></div>
   <div class="config-title">Connect to Google Sheets</div>
@@ -288,13 +127,9 @@ header{
     <input type="url" id="configUrl" placeholder="https://script.google.com/macros/s/..." autocomplete="off" autocorrect="off" spellcheck="false">
   </div>
   <button class="config-btn" onclick="saveConfig()">Connect &amp; Load Data</button>
-  <div class="config-note">
-    Your URL looks like:<br>
-    <code>https://script.google.com/macros/s/AKfy.../exec</code>
-  </div>
+  <div class="config-note">Your URL looks like:<br><code>https://script.google.com/macros/s/AKfy.../exec</code></div>
 </div>
 
-<!-- App -->
 <header>
   <div class="logo">Benefits <span>Tracker</span></div>
   <div class="hdr-right">
@@ -323,45 +158,53 @@ header{
 </div>
 
 <div class="scroll-area" id="scrollArea">
-  <div class="loading" id="loadingMsg">
-    <div class="spinner"></div><br>Loading your benefits...
-  </div>
+  <div class="loading" id="loadingMsg"><div class="spinner"></div><br>Loading your benefits...</div>
 </div>
 
 <button class="fab" onclick="openAdd(null)">＋</button>
 
-<!-- Bottom sheet -->
 <div class="sheet-overlay" id="sheetOverlay" onclick="handleOverlayClick(event)">
   <div class="sheet">
     <div class="sheet-handle"></div>
     <div class="sheet-title" id="sheetTitle">Add Benefit</div>
-    <div class="form-group">
+    <div class="form-group" id="cardSelectGroup">
       <label>Card</label>
       <select id="fCard"></select>
     </div>
     <div class="form-group">
       <label>Description</label>
-      <input type="text" id="fDesc" placeholder="e.g. Hotel Credit (this cycle)">
+      <input type="text" id="fDesc" placeholder="e.g. Hotel Credit">
     </div>
     <div class="form-row">
       <div class="form-group">
-        <label>Date</label>
-        <input type="text" id="fDate" placeholder="2026.04.18">
+        <label>Due Date</label>
+        <input type="text" id="fDate" placeholder="YYYY.MM.DD">
       </div>
       <div class="form-group">
         <label>Amount</label>
         <input type="text" id="fAmt" placeholder="$50">
       </div>
     </div>
-    <div class="form-group" id="statusGroup">
-      <label>Status</label>
-      <select id="fStatus">
-        <option>Todo</option>
-        <option>Done</option>
-        <option>Waiting</option>
-        <option>Too early</option>
-      </select>
+    <div class="form-row">
+      <div class="form-group">
+        <label>Status</label>
+        <select id="fStatus">
+          <option>Todo</option>
+          <option>Done</option>
+          <option>Waiting</option>
+          <option>Too early</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label>Recurring</label>
+        <select id="fRecurring" onchange="updateRecurHint()">
+          <option value="none">None</option>
+          <option value="monthly">Monthly</option>
+          <option value="annual">Annual</option>
+        </select>
+      </div>
     </div>
+    <div class="recur-hint" id="recurHint"></div>
     <div class="form-group">
       <label>Notes</label>
       <textarea id="fNotes" placeholder="Optional notes..."></textarea>
@@ -400,9 +243,8 @@ function showConfig(){
   document.getElementById('configUrl').value=apiUrl;
   document.getElementById('configScreen').classList.remove('hidden');
 }
-
 window.addEventListener('DOMContentLoaded',function(){
-  if(!apiUrl){document.getElementById('configScreen').classList.remove('hidden');}
+  if(!apiUrl)document.getElementById('configScreen').classList.remove('hidden');
   else{document.getElementById('configScreen').classList.add('hidden');loadData();}
 });
 
@@ -416,13 +258,15 @@ function loadData(){
     .then(function(r){return r.json();})
     .then(function(d){
       if(d.error)throw new Error(d.error);
-      appData=d;setSyncStatus('saved','Synced');
+      appData=d;
+      applyAutoStatus();
+      setSyncStatus('saved','Synced');
       document.getElementById('loadingMsg').style.display='none';
       render();
     })
     .catch(function(err){
       setSyncStatus('error','Error');
-      document.getElementById('loadingMsg').innerHTML='<div style="color:#C0392B;font-size:13px">⚠ Could not load data.<br><small>'+err.message+'</small></div>';
+      document.getElementById('loadingMsg').innerHTML='<div style="color:#C0392B;font-size:13px">Could not load data.<br><small>'+err.message+'</small></div>';
     });
 }
 function scheduleSave(){
@@ -437,13 +281,69 @@ function pushData(){
     .catch(function(){setSyncStatus('error','Save failed');});
 }
 
-function esc(s){if(!s)return '';return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
-function scls(s){if(s==='Done')return 's-done';if(s==='Todo')return 's-todo';if(s==='Waiting')return 's-waiting';return 's-tooearly';}
-function sicon(s){if(s==='Done')return '✓';if(s==='Todo')return '○';if(s==='Waiting')return '◑';return '–';}
+// ── Date helpers ──────────────────────────────────────────────
+function parseDate(s){
+  if(!s)return null;
+  var p=s.split('.');
+  if(p.length>=3)return new Date(Date.UTC(+p[0],+p[1]-1,+p[2],12));
+  if(p.length===2)return new Date(Date.UTC(+p[0],+p[1]-1,1,12));
+  return null;
+}
+function formatDate(d){
+  return d.getUTCFullYear()+'.'+String(d.getUTCMonth()+1).padStart(2,'0')+'.'+String(d.getUTCDate()).padStart(2,'0');
+}
+function todayUTC(){var n=new Date();return new Date(Date.UTC(n.getFullYear(),n.getMonth(),n.getDate(),12));}
+function advanceMonthly(s){
+  var d=parseDate(s);if(!d)return s;
+  return formatDate(new Date(Date.UTC(d.getUTCFullYear(),d.getUTCMonth()+1,d.getUTCDate(),12)));
+}
+function advanceAnnual(s){
+  var d=parseDate(s);if(!d)return s;
+  return formatDate(new Date(Date.UTC(d.getUTCFullYear()+1,d.getUTCMonth(),d.getUTCDate(),12)));
+}
+function computeAutoStatus(b){
+  if(b.status==='Done'||b.status==='Waiting')return b.status;
+  if(!b.recurring||b.recurring==='none')return b.status;
+  var d=parseDate(b.date);if(!d)return b.status;
+  var today=todayUTC();
+  if(b.recurring==='monthly'){
+    var threshold=new Date(Date.UTC(d.getUTCFullYear(),d.getUTCMonth(),1,12));
+    return today>=threshold?'Todo':'Too early';
+  }
+  if(b.recurring==='annual')return today>=d?'Todo':'Too early';
+  return b.status;
+}
+function applyAutoStatus(){
+  var changed=false;
+  appData.cards.forEach(function(c){
+    c.benefits.forEach(function(b){
+      var ns=computeAutoStatus(b);
+      if(ns!==b.status){b.status=ns;changed=true;}
+    });
+  });
+  if(changed)scheduleSave();
+}
 
-function cycleStatus(cardId,bid){
+// ── Helpers ───────────────────────────────────────────────────
+function esc(s){if(!s)return'';return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
+function scls(s){if(s==='Done')return 's-done';if(s==='Todo')return 's-todo';if(s==='Waiting')return 's-waiting';return 's-tooearly';}
+function sicon(s){if(s==='Done')return'✓';if(s==='Todo')return'○';if(s==='Waiting')return'◑';return'–';}
+function recurLabel(r){if(r==='monthly')return'↻ mo';if(r==='annual')return'↻ yr';return'';}
+
+function tapStatus(cardId,bid){
   var card=appData.cards.find(function(c){return c.id===cardId;});
   var b=card.benefits.find(function(x){return x.id===bid;});
+  if(b.status!=='Done'&&(b.recurring==='monthly'||b.recurring==='annual')){
+    b.status='Done';render();scheduleSave();
+    setTimeout(function(){
+      if(confirm('Advance to next cycle?')){
+        b.date=b.recurring==='monthly'?advanceMonthly(b.date):advanceAnnual(b.date);
+        b.status=computeAutoStatus(b);
+        render();scheduleSave();
+      }
+    },150);
+    return;
+  }
   var order=['Todo','Waiting','Done','Too early'];
   b.status=order[(order.indexOf(b.status)+1)%order.length];
   render();scheduleSave();
@@ -491,14 +391,18 @@ function render(){
     var wC=card.benefits.filter(function(b){return b.status==='Waiting';}).length;
 
     var rows=vb.map(function(b){
-      var sub=[b.date,b.notes].filter(Boolean).join(' · ');
+      var rl=recurLabel(b.recurring);
       return '<div class="benefit-row">'+
         '<div class="b-main">'+
           '<div class="b-desc">'+esc(b.desc)+'</div>'+
-          (sub?'<div class="b-sub">'+esc(sub)+'</div>':'')+
+          '<div class="b-meta">'+
+            (b.date?'<span class="b-date">'+esc(b.date)+'</span>':'')+
+            (rl?'<span class="b-recur">'+rl+'</span>':'')+
+          '</div>'+
+          (b.notes?'<div class="b-notes">'+esc(b.notes)+'</div>':'')+
         '</div>'+
         (b.amt?'<div class="b-amt">'+esc(b.amt)+'</div>':'')+
-        '<button class="status-badge '+scls(b.status)+'" onclick="cycleStatus(\''+card.id+'\','+b.id+')">'+sicon(b.status)+' '+b.status+'</button>'+
+        '<button class="status-badge '+scls(b.status)+'" onclick="tapStatus(\''+card.id+'\','+b.id+')">'+sicon(b.status)+' '+b.status+'</button>'+
         '<button class="row-edit-btn" onclick="openEdit(\''+card.id+'\','+b.id+')">›</button>'+
       '</div>';
     }).join('');
@@ -545,25 +449,32 @@ function toggleCard(id){
   }
 }
 
+function updateRecurHint(){
+  var r=document.getElementById('fRecurring').value;
+  var h=document.getElementById('recurHint');
+  if(r==='monthly')h.textContent='Auto-advances monthly. Status sets to Todo on the 1st of the due month.';
+  else if(r==='annual')h.textContent='Auto-advances yearly. Status sets to Todo on or after the due date.';
+  else h.textContent='';
+}
 function populateCardSelect(selectedId){
-  var sel=document.getElementById('fCard');
-  sel.innerHTML=appData.cards.map(function(c){
+  document.getElementById('fCard').innerHTML=appData.cards.map(function(c){
     return '<option value="'+c.id+'"'+(c.id===selectedId?' selected':'')+'>'+c.name+' ('+c.owner+(c.last4?' ···'+c.last4:'')+')' +'</option>';
   }).join('');
 }
-
 function openAdd(cardId){
   editState={cardId:cardId||(appData.cards[0]&&appData.cards[0].id),benefitId:null};
   document.getElementById('sheetTitle').textContent='Add Benefit';
   document.getElementById('deleteBtn').style.display='none';
   document.getElementById('cardMgmt').style.display='none';
-  document.getElementById('statusGroup').style.display='block';
+  document.getElementById('cardSelectGroup').style.display='block';
   populateCardSelect(editState.cardId);
   document.getElementById('fDesc').value='';
   document.getElementById('fDate').value='';
   document.getElementById('fAmt').value='';
   document.getElementById('fStatus').value='Todo';
+  document.getElementById('fRecurring').value='none';
   document.getElementById('fNotes').value='';
+  document.getElementById('recurHint').textContent='';
   openSheet();
 }
 function openEdit(cardId,bid){
@@ -573,13 +484,15 @@ function openEdit(cardId,bid){
   document.getElementById('sheetTitle').textContent='Edit Benefit';
   document.getElementById('deleteBtn').style.display='flex';
   document.getElementById('cardMgmt').style.display='none';
-  document.getElementById('statusGroup').style.display='block';
+  document.getElementById('cardSelectGroup').style.display='block';
   populateCardSelect(cardId);
   document.getElementById('fDesc').value=b.desc;
-  document.getElementById('fDate').value=b.date;
-  document.getElementById('fAmt').value=b.amt;
+  document.getElementById('fDate').value=b.date||'';
+  document.getElementById('fAmt').value=b.amt||'';
   document.getElementById('fStatus').value=b.status;
-  document.getElementById('fNotes').value=b.notes;
+  document.getElementById('fRecurring').value=b.recurring||'none';
+  document.getElementById('fNotes').value=b.notes||'';
+  updateRecurHint();
   openSheet();
 }
 function openCardEdit(cardId){
@@ -588,12 +501,14 @@ function openCardEdit(cardId){
   document.getElementById('sheetTitle').textContent='Edit Card';
   document.getElementById('deleteBtn').style.display='none';
   document.getElementById('cardMgmt').style.display='block';
-  document.getElementById('statusGroup').style.display='none';
-  populateCardSelect(cardId);
+  document.getElementById('cardSelectGroup').style.display='none';
   document.getElementById('fDesc').value=card.name;
   document.getElementById('fDate').value=card.last4||'';
   document.getElementById('fAmt').value=card.fee||'';
+  document.getElementById('fStatus').value='Todo';
+  document.getElementById('fRecurring').value='none';
   document.getElementById('fNotes').value='';
+  document.getElementById('recurHint').textContent='';
   openSheet();
 }
 function saveEntry(){
@@ -612,8 +527,10 @@ function saveEntry(){
     date:document.getElementById('fDate').value,
     amt:document.getElementById('fAmt').value,
     status:document.getElementById('fStatus').value,
+    recurring:document.getElementById('fRecurring').value,
     notes:document.getElementById('fNotes').value,
   };
+  entry.status=computeAutoStatus(entry);
   if(editState.benefitId){
     appData.cards.forEach(function(c){c.benefits=c.benefits.filter(function(b){return b.id!==editState.benefitId;});});
     card.benefits.push(entry);
