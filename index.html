@@ -252,6 +252,10 @@ header{padding:calc(14px + var(--safe-top)) 18px 12px;background:var(--paper);bo
         <label>Annual Fee</label>
         <input type="text" id="fCardFee" placeholder="$95">
       </div>
+      <div class="form-group">
+        <label>Card Opened Date</label>
+        <input type="text" id="fCardOpened" placeholder="YYYY.MM.DD">
+      </div>
       <button class="btn btn-primary" style="width:100%;margin-bottom:10px" onclick="saveCardDetails()">Save Card</button>
       <button class="btn btn-danger" style="width:100%" onclick="doDeleteCard()">Delete Entire Card</button>
     </div>
@@ -507,15 +511,14 @@ function render(){
     var div=document.createElement('div');
     div.className='card-group';
     div.innerHTML=
-      '<div class="card-header" onclick="toggleCard(\''+card.id+'\')">'+
-        '<div>'+
+      '<div class="card-header">'+
+        '<div style="cursor:pointer;flex:1" onclick="openCardEdit(\''+card.id+'\')">'+
           '<div class="card-name">'+esc(card.name)+'</div>'+
-          '<div class="card-meta">'+esc(card.owner)+(card.last4?' · ···'+card.last4:'')+' · '+esc(card.fee)+'</div>'+
+          '<div class="card-meta">'+esc(card.owner)+(card.last4?' ('+card.last4+')':'')+' · '+esc(card.fee)+(card.opened?' · opened '+esc(card.opened):'')+' </div>'+
         '</div>'+
         '<div class="card-right">'+
           '<div class="stat-pills">'+pills+'</div>'+
-          '<button class="row-edit-btn" style="font-size:20px;color:var(--ink3)" onclick="event.stopPropagation();openCardEdit(\''+card.id+'\')">⋯</button>'+
-          '<span class="chevron'+(isOpen?' open':'')+'">▶</span>'+
+          '<span class="chevron'+(isOpen?' open':'')+'" onclick="toggleCard(\''+card.id+'\')" style="cursor:pointer;padding:4px;">▶</span>'+
         '</div>'+
       '</div>'+
       '<div class="card-body'+(isOpen?' open':'')+'" id="body-'+card.id+'">'+
@@ -607,6 +610,7 @@ function openCardEdit(cardId){
   document.getElementById('fCardOwner').value=card.owner||'Justin';
   document.getElementById('fCardLast4').value=card.last4||'';
   document.getElementById('fCardFee').value=card.fee||'';
+  document.getElementById('fCardOpened').value=card.opened||'';
   openSheet();
 }
 function saveCardDetails(){
@@ -615,6 +619,7 @@ function saveCardDetails(){
   card.owner=document.getElementById('fCardOwner').value;
   card.last4=document.getElementById('fCardLast4').value;
   card.fee=document.getElementById('fCardFee').value;
+  card.opened=document.getElementById('fCardOpened').value;
   closeSheet();render();scheduleSave();
 }
 function saveEntry(){
@@ -652,7 +657,8 @@ function addCardGroup(){
   var owner=prompt('Owner (Justin or EJ):')||'Justin';
   var last4=prompt('Last 4 digits (optional):')||'';
   var fee=prompt('Annual fee (e.g. $95):')||'';
-  appData.cards.push({id:'card-'+nextId++,name:name,owner:owner,last4:last4,fee:fee,benefits:[]});
+  var opened=prompt('Opened date (e.g. 2026.01.01):')||'';
+  appData.cards.push({id:'card-'+nextId++,name:name,owner:owner,last4:last4,fee:fee,opened:opened,benefits:[]});
   render();scheduleSave();
 }
 function openSheet(){document.getElementById('sheetOverlay').classList.add('open');setTimeout(function(){document.getElementById('fDesc').focus();},300);}
