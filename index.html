@@ -463,7 +463,7 @@ function render(){
     var rows=vb.map(function(b){
       var rl=recurLabel(b.recurring);
       return '<div class="benefit-row">'+
-        '<div class="b-main">'+
+        '<div class="b-main" onclick="openEdit(\''+card.id+'\','+b.id+')" style="cursor:pointer;">'+
           '<div class="b-desc">'+esc(b.desc)+'</div>'+
           (b.notes?'<div class="b-notes">'+esc(b.notes)+'</div>':'')+
         '</div>'+
@@ -473,7 +473,6 @@ function render(){
         '</div>'+
         (b.amt?'<div class="b-amt">'+esc(b.amt)+'</div>':'')+
         '<button class="status-badge '+scls(b.status)+'" onclick="tapStatus(\''+card.id+'\','+b.id+',this)">'+sicon(b.status)+' '+b.status+'</button>'+
-        '<button class="row-edit-btn" onclick="openEdit(\''+card.id+'\','+b.id+')">›</button>'+
       '</div>';
     }).join('');
     if(!rows)rows='<div style="padding:14px 16px;font-size:13px;color:var(--ink3)">No benefits match filter</div>';
