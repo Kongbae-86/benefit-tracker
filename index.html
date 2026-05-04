@@ -170,10 +170,10 @@ header{padding:calc(14px + var(--safe-top)) 18px 12px;background:var(--paper);bo
 <button class="fab" onclick="openAdd(null)">＋</button>
 
 <div class="status-picker" id="statusPicker">
-  <div class="sp-item" onclick="pickStatus('Todo')"><span class="sp-dot sp-todo"></span>Todo</div>
-  <div class="sp-item" onclick="pickStatus('Done')"><span class="sp-dot sp-done"></span>Done</div>
-  <div class="sp-item" onclick="pickStatus('Waiting')"><span class="sp-dot sp-waiting"></span>Waiting</div>
-  <div class="sp-item" onclick="pickStatus('Too early')"><span class="sp-dot sp-early"></span>Too early</div>
+  <div class="sp-item" onclick="pickStatus('Todo',event)"><span class="sp-dot sp-todo"></span>Todo</div>
+  <div class="sp-item" onclick="pickStatus('Done',event)"><span class="sp-dot sp-done"></span>Done</div>
+  <div class="sp-item" onclick="pickStatus('Waiting',event)"><span class="sp-dot sp-waiting"></span>Waiting</div>
+  <div class="sp-item" onclick="pickStatus('Too early',event)"><span class="sp-dot sp-early"></span>Too early</div>
 </div>
 
 <div class="sheet-overlay" id="sheetOverlay" onclick="handleOverlayClick(event)">
@@ -346,23 +346,34 @@ function recurLabel(r){if(r==='monthly')return'↻ mo';if(r==='annual')return'�
 // ── Status picker ─────────────────────────────────────────────
 var pickerTarget=null; // {cardId, bid}
 function tapStatus(cardId,bid,el){
-  pickerTarget={cardId:cardId,bid:bid};
+  // If picker already open for same item, close it
   var picker=document.getElementById('statusPicker');
+  if(pickerTarget&&pickerTarget.cardId===cardId&&pickerTarget.bid===bid){
+    picker.classList.remove('open');
+    pickerTarget=null;
+    return;
+  }
+  pickerTarget={cardId:cardId,bid:bid};
   var rect=el.getBoundingClientRect();
   var top=rect.bottom+6;
   var left=rect.left;
-  // Keep picker on screen
   if(left+140>window.innerWidth) left=window.innerWidth-146;
+  if(top+160>window.innerHeight) top=rect.top-166;
   picker.style.top=top+'px';
   picker.style.left=left+'px';
   picker.classList.add('open');
-  setTimeout(function(){document.addEventListener('click',closePicker,{once:true,capture:true});},10);
 }
-function closePicker(){
-  document.getElementById('statusPicker').classList.remove('open');
-  pickerTarget=null;
+function closePicker(e){
+  var picker=document.getElementById('statusPicker');
+  if(picker&&!picker.contains(e.target)){
+    picker.classList.remove('open');
+    pickerTarget=null;
+  }
 }
-function pickStatus(newStatus){
+document.addEventListener('click',closePicker);
+
+function pickStatus(newStatus,e){
+  if(e)e.stopPropagation();
   if(!pickerTarget)return;
   var card=appData.cards.find(function(c){return c.id===pickerTarget.cardId;});
   var b=card.benefits.find(function(x){return x.id===pickerTarget.bid;});
@@ -370,7 +381,6 @@ function pickStatus(newStatus){
   b.status=newStatus;
   document.getElementById('statusPicker').classList.remove('open');
   pickerTarget=null;
-  // If marking Done on recurring → ask to advance cycle
   if(newStatus==='Done'&&oldStatus!=='Done'&&(b.recurring==='monthly'||b.recurring==='annual')){
     render();scheduleSave();
     setTimeout(function(){
