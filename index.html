@@ -230,7 +230,29 @@ header{padding:calc(14px + var(--safe-top)) 18px 12px;background:var(--paper);bo
       <button class="btn btn-primary" onclick="saveEntry()">Save</button>
     </div>
     <div class="card-mgmt" id="cardMgmt">
-      <div class="card-mgmt-label">Card Actions</div>
+      <div class="card-mgmt-label">Card Details</div>
+      <div class="form-group">
+        <label>Card Name</label>
+        <input type="text" id="fCardName" placeholder="e.g. Chase Sapphire Reserve">
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label>Owner</label>
+          <select id="fCardOwner">
+            <option value="Justin">Justin</option>
+            <option value="EJ">EJ</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Last 4</label>
+          <input type="text" id="fCardLast4" placeholder="1234" maxlength="4">
+        </div>
+      </div>
+      <div class="form-group">
+        <label>Annual Fee</label>
+        <input type="text" id="fCardFee" placeholder="$95">
+      </div>
+      <button class="btn btn-primary" style="width:100%;margin-bottom:10px" onclick="saveCardDetails()">Save Card</button>
       <button class="btn btn-danger" style="width:100%" onclick="doDeleteCard()">Delete Entire Card</button>
     </div>
   </div>
@@ -573,23 +595,30 @@ function openCardEdit(cardId){
   document.getElementById('deleteBtn').style.display='none';
   document.getElementById('cardMgmt').style.display='block';
   document.getElementById('cardSelectGroup').style.display='none';
-  document.getElementById('fDesc').value=card.name;
-  document.getElementById('fDate').value=card.last4||'';
-  document.getElementById('fAmt').value=card.fee||'';
-  document.getElementById('fStatus').value='Todo';
-  document.getElementById('fRecurring').value='none';
-  document.getElementById('fNotes').value='';
-  document.getElementById('recurHint').textContent='';
+  // Hide benefit-specific fields
+  document.getElementById('fDesc').closest('.form-group').style.display='none';
+  document.querySelectorAll('.form-row')[0].style.display='none';
+  document.querySelectorAll('.form-row')[1].style.display='none';
+  document.getElementById('recurHint').style.display='none';
+  document.getElementById('fNotes').closest('.form-group').style.display='none';
+  document.querySelector('.sheet-actions').style.display='none';
+  // Populate card fields
+  document.getElementById('fCardName').value=card.name;
+  document.getElementById('fCardOwner').value=card.owner||'Justin';
+  document.getElementById('fCardLast4').value=card.last4||'';
+  document.getElementById('fCardFee').value=card.fee||'';
   openSheet();
 }
+function saveCardDetails(){
+  var card=appData.cards.find(function(c){return c.id===editState.cardId;});
+  card.name=document.getElementById('fCardName').value;
+  card.owner=document.getElementById('fCardOwner').value;
+  card.last4=document.getElementById('fCardLast4').value;
+  card.fee=document.getElementById('fCardFee').value;
+  closeSheet();render();scheduleSave();
+}
 function saveEntry(){
-  if(editState&&editState.cardOnly){
-    var card=appData.cards.find(function(c){return c.id===editState.cardId;});
-    card.name=document.getElementById('fDesc').value;
-    card.last4=document.getElementById('fDate').value;
-    card.fee=document.getElementById('fAmt').value;
-    closeSheet();render();scheduleSave();return;
-  }
+  if(editState&&editState.cardOnly){saveCardDetails();return;}
   var cardId=document.getElementById('fCard').value;
   var card=appData.cards.find(function(c){return c.id===cardId;});
   var entry={
@@ -627,7 +656,17 @@ function addCardGroup(){
   render();scheduleSave();
 }
 function openSheet(){document.getElementById('sheetOverlay').classList.add('open');setTimeout(function(){document.getElementById('fDesc').focus();},300);}
-function closeSheet(){document.getElementById('sheetOverlay').classList.remove('open');editState=null;}
+function closeSheet(){
+  document.getElementById('sheetOverlay').classList.remove('open');
+  // Restore all fields in case card edit hid them
+  document.getElementById('fDesc').closest('.form-group').style.display='block';
+  document.querySelectorAll('.form-row')[0].style.display='grid';
+  document.querySelectorAll('.form-row')[1].style.display='grid';
+  document.getElementById('recurHint').style.display='block';
+  document.getElementById('fNotes').closest('.form-group').style.display='block';
+  document.querySelector('.sheet-actions').style.display='flex';
+  editState=null;
+}
 function handleOverlayClick(e){if(e.target===document.getElementById('sheetOverlay'))closeSheet();}
 </script>
 </body>
