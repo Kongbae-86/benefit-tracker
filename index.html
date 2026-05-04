@@ -72,6 +72,12 @@ header{padding:calc(14px + var(--safe-top)) 18px 12px;background:var(--paper);bo
 .s-done{background:var(--done-bg);color:var(--done-color);}.s-todo{background:var(--todo-bg);color:var(--todo-color);}.s-waiting{background:var(--waiting-bg);color:var(--waiting-color);}.s-tooearly{background:var(--early-bg);color:var(--early-color);}
 .row-edit-btn{background:none;border:none;color:var(--ink3);font-size:18px;padding:4px;cursor:pointer;flex-shrink:0;line-height:1;}
 .row-edit-btn:active{color:var(--orange);}
+.status-picker{position:fixed;z-index:150;background:var(--paper);border:1px solid var(--border);border-radius:14px;box-shadow:0 8px 32px rgba(44,36,22,.2);padding:6px;min-width:130px;display:none;}
+.status-picker.open{display:block;}
+.sp-item{display:flex;align-items:center;gap:8px;padding:9px 12px;border-radius:10px;cursor:pointer;font-size:13px;font-family:'DM Sans',sans-serif;}
+.sp-item:active{background:var(--paper2);}
+.sp-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0;}
+.sp-done{background:var(--done-color);} .sp-todo{background:var(--todo-color);} .sp-waiting{background:var(--waiting-color);} .sp-early{background:var(--early-color);}
 .add-row-btn{display:flex;align-items:center;gap:6px;width:100%;padding:11px 16px;background:none;border:none;border-top:1px dashed var(--border);color:var(--ink3);font-size:12px;cursor:pointer;font-family:'DM Sans',sans-serif;}
 .add-row-btn:active{color:var(--orange);}
 .fab{position:fixed;bottom:calc(20px + var(--safe-bottom));right:18px;width:54px;height:54px;border-radius:50%;background:var(--orange);color:white;font-size:26px;border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;box-shadow:0 4px 16px rgba(217,112,38,.4);z-index:50;transition:transform .15s;}
@@ -162,6 +168,13 @@ header{padding:calc(14px + var(--safe-top)) 18px 12px;background:var(--paper);bo
 </div>
 
 <button class="fab" onclick="openAdd(null)">＋</button>
+
+<div class="status-picker" id="statusPicker">
+  <div class="sp-item" onclick="pickStatus('Todo')"><span class="sp-dot sp-todo"></span>Todo</div>
+  <div class="sp-item" onclick="pickStatus('Done')"><span class="sp-dot sp-done"></span>Done</div>
+  <div class="sp-item" onclick="pickStatus('Waiting')"><span class="sp-dot sp-waiting"></span>Waiting</div>
+  <div class="sp-item" onclick="pickStatus('Too early')"><span class="sp-dot sp-early"></span>Too early</div>
+</div>
 
 <div class="sheet-overlay" id="sheetOverlay" onclick="handleOverlayClick(event)">
   <div class="sheet">
@@ -330,11 +343,36 @@ function scls(s){if(s==='Done')return 's-done';if(s==='Todo')return 's-todo';if(
 function sicon(s){if(s==='Done')return'✓';if(s==='Todo')return'○';if(s==='Waiting')return'◑';return'–';}
 function recurLabel(r){if(r==='monthly')return'↻ mo';if(r==='annual')return'↻ yr';return'';}
 
-function tapStatus(cardId,bid){
-  var card=appData.cards.find(function(c){return c.id===cardId;});
-  var b=card.benefits.find(function(x){return x.id===bid;});
-  if(b.status!=='Done'&&(b.recurring==='monthly'||b.recurring==='annual')){
-    b.status='Done';render();scheduleSave();
+// ── Status picker ─────────────────────────────────────────────
+var pickerTarget=null; // {cardId, bid}
+function tapStatus(cardId,bid,el){
+  pickerTarget={cardId:cardId,bid:bid};
+  var picker=document.getElementById('statusPicker');
+  var rect=el.getBoundingClientRect();
+  var top=rect.bottom+6;
+  var left=rect.left;
+  // Keep picker on screen
+  if(left+140>window.innerWidth) left=window.innerWidth-146;
+  picker.style.top=top+'px';
+  picker.style.left=left+'px';
+  picker.classList.add('open');
+  setTimeout(function(){document.addEventListener('click',closePicker,{once:true,capture:true});},10);
+}
+function closePicker(){
+  document.getElementById('statusPicker').classList.remove('open');
+  pickerTarget=null;
+}
+function pickStatus(newStatus){
+  if(!pickerTarget)return;
+  var card=appData.cards.find(function(c){return c.id===pickerTarget.cardId;});
+  var b=card.benefits.find(function(x){return x.id===pickerTarget.bid;});
+  var oldStatus=b.status;
+  b.status=newStatus;
+  document.getElementById('statusPicker').classList.remove('open');
+  pickerTarget=null;
+  // If marking Done on recurring → ask to advance cycle
+  if(newStatus==='Done'&&oldStatus!=='Done'&&(b.recurring==='monthly'||b.recurring==='annual')){
+    render();scheduleSave();
     setTimeout(function(){
       if(confirm('Advance to next cycle?')){
         b.date=b.recurring==='monthly'?advanceMonthly(b.date):advanceAnnual(b.date);
@@ -344,8 +382,6 @@ function tapStatus(cardId,bid){
     },150);
     return;
   }
-  var order=['Todo','Waiting','Done','Too early'];
-  b.status=order[(order.indexOf(b.status)+1)%order.length];
   render();scheduleSave();
 }
 
@@ -402,7 +438,7 @@ function render(){
           (b.notes?'<div class="b-notes">'+esc(b.notes)+'</div>':'')+
         '</div>'+
         (b.amt?'<div class="b-amt">'+esc(b.amt)+'</div>':'')+
-        '<button class="status-badge '+scls(b.status)+'" onclick="tapStatus(\''+card.id+'\','+b.id+')">'+sicon(b.status)+' '+b.status+'</button>'+
+        '<button class="status-badge '+scls(b.status)+'" onclick="tapStatus(\''+card.id+'\','+b.id+',this)">'+sicon(b.status)+' '+b.status+'</button>'+
         '<button class="row-edit-btn" onclick="openEdit(\''+card.id+'\','+b.id+')">›</button>'+
       '</div>';
     }).join('');
