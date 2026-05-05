@@ -284,7 +284,9 @@ var showArchived=false;
 function saveConfig(){
   var url=document.getElementById('configUrl').value.trim();
   if(!url){alert('Please enter your Apps Script URL');return;}
-  apiUrl=url;localStorage.setItem(API_URL_KEY,url);
+  if(!url.startsWith('https://script.google.com')){alert('That doesn\'t look like an Apps Script URL. It should start with https://script.google.com');return;}
+  apiUrl=url;
+  localStorage.setItem(API_URL_KEY,url);
   document.getElementById('configScreen').classList.add('hidden');
   loadData();
 }
@@ -303,7 +305,7 @@ function setSyncStatus(state,msg){
 }
 function loadData(){
   setSyncStatus('saving','Loading...');
-  fetch(apiUrl+'?action=getData')
+  fetch(apiUrl+'?action=getData', {redirect:'follow'})
     .then(function(r){return r.json();})
     .then(function(d){
       if(d.error)throw new Error(d.error);
@@ -315,7 +317,7 @@ function loadData(){
     })
     .catch(function(err){
       setSyncStatus('error','Error');
-      document.getElementById('loadingMsg').innerHTML='<div style="color:#C0392B;font-size:13px">Could not load data.<br><small>'+err.message+'</small></div>';
+      document.getElementById('loadingMsg').innerHTML='<div style="color:#C0392B;font-size:13px">Could not load data.<br><small>'+err.message+'</small><br><br><button onclick="showConfig()" style="background:var(--orange);color:white;border:none;padding:8px 16px;border-radius:8px;font-size:13px;cursor:pointer;">Check URL ⚙</button></div>';
     });
 }
 function scheduleSave(){
@@ -324,10 +326,16 @@ function scheduleSave(){
   saveTimer=setTimeout(pushData,800);
 }
 function pushData(){
-  fetch(apiUrl,{method:'POST',headers:{'Content-Type':'text/plain'},body:JSON.stringify({action:'saveData',data:appData})})
-    .then(function(r){return r.json();})
-    .then(function(d){if(d.error)throw new Error(d.error);setSyncStatus('saved','Saved');})
-    .catch(function(){setSyncStatus('error','Save failed');});
+  var payload = JSON.stringify({action:'saveData',data:appData});
+  fetch(apiUrl, {
+    method:'POST',
+    redirect:'follow',
+    headers:{'Content-Type':'text/plain;charset=utf-8'},
+    body: payload
+  })
+  .then(function(r){return r.json();})
+  .then(function(d){if(d.error)throw new Error(d.error);setSyncStatus('saved','Saved');})
+  .catch(function(){setSyncStatus('error','Save failed');});
 }
 
 // ── Date helpers ──────────────────────────────────────────────
