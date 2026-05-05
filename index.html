@@ -134,7 +134,8 @@ header{padding:calc(14px + var(--safe-top)) 18px 12px;background:var(--paper);bo
     <label>Apps Script Web App URL</label>
     <input type="url" id="configUrl" placeholder="https://script.google.com/macros/s/..." autocomplete="off" autocorrect="off" spellcheck="false">
   </div>
-  <button class="config-btn" onclick="saveConfig()">Connect &amp; Load Data</button>
+  <button class="config-btn" id="configBtn" onclick="saveConfig()">Connect &amp; Load Data</button>
+  <div id="configError" style="margin-top:12px;font-size:13px;color:#C0392B;text-align:center;max-width:380px;line-height:1.5;"></div>
   <div class="config-note">Your URL looks like:<br><code>https://script.google.com/macros/s/AKfy.../exec</code></div>
 </div>
 
@@ -283,12 +284,33 @@ var showArchived=false;
 
 function saveConfig(){
   var url=document.getElementById('configUrl').value.trim();
-  if(!url){alert('Please enter your Apps Script URL');return;}
-  if(!url.startsWith('https://script.google.com')){alert('That doesn\'t look like an Apps Script URL. It should start with https://script.google.com');return;}
+  var errEl=document.getElementById('configError');
+  errEl.textContent='';
+  if(!url){errEl.textContent='Please enter your Apps Script URL';return;}
+  if(!url.startsWith('https://')){errEl.textContent='URL must start with https://';return;}
   apiUrl=url;
   localStorage.setItem(API_URL_KEY,url);
-  document.getElementById('configScreen').classList.add('hidden');
-  loadData();
+  errEl.textContent='Connecting...';
+  document.getElementById('configBtn').disabled=true;
+  fetch(url+'?action=getData',{redirect:'follow'})
+    .then(function(r){
+      if(!r.ok) throw new Error('HTTP '+r.status);
+      return r.json();
+    })
+    .then(function(d){
+      if(d.error) throw new Error('Script error: '+d.error);
+      appData=d;
+      applyAutoStatus();
+      document.getElementById('configScreen').classList.add('hidden');
+      document.getElementById('configBtn').disabled=false;
+      document.getElementById('loadingMsg').style.display='none';
+      setSyncStatus('saved','Synced');
+      render();
+    })
+    .catch(function(err){
+      document.getElementById('configBtn').disabled=false;
+      errEl.textContent='Error: '+err.message+'. Make sure your Apps Script is deployed with "Anyone" access.';
+    });
 }
 function showConfig(){
   document.getElementById('configUrl').value=apiUrl;
