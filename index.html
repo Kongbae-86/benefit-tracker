@@ -290,27 +290,23 @@ function saveConfig(){
   if(!url.startsWith('https://')){errEl.textContent='URL must start with https://';return;}
   apiUrl=url;
   localStorage.setItem(API_URL_KEY,url);
+  errEl.style.color='#8A7D6A';
   errEl.textContent='Connecting...';
   document.getElementById('configBtn').disabled=true;
-  fetch(url+'?action=getData',{redirect:'follow'})
-    .then(function(r){
-      if(!r.ok) throw new Error('HTTP '+r.status);
-      return r.json();
-    })
-    .then(function(d){
-      if(d.error) throw new Error('Script error: '+d.error);
-      appData=d;
-      applyAutoStatus();
-      document.getElementById('configScreen').classList.add('hidden');
-      document.getElementById('configBtn').disabled=false;
-      document.getElementById('loadingMsg').style.display='none';
-      setSyncStatus('saved','Synced');
-      render();
-    })
-    .catch(function(err){
-      document.getElementById('configBtn').disabled=false;
-      errEl.textContent='Error: '+err.message+'. Make sure your Apps Script is deployed with "Anyone" access.';
-    });
+  jsonpGet(url, 'getData', {}, function(d, err){
+    document.getElementById('configBtn').disabled=false;
+    if(err || !d){
+      errEl.style.color='#C0392B';
+      errEl.textContent='Connection failed. Make sure your Apps Script is deployed as "Anyone" can access.';
+      return;
+    }
+    appData=d;
+    applyAutoStatus();
+    document.getElementById('configScreen').classList.add('hidden');
+    document.getElementById('loadingMsg').style.display='none';
+    setSyncStatus('saved','Synced');
+    render();
+  });
 }
 function showConfig(){
   document.getElementById('configUrl').value=apiUrl;
@@ -325,22 +321,54 @@ function setSyncStatus(state,msg){
   document.getElementById('syncDot').className='sync-dot '+state;
   document.getElementById('syncLabel').textContent=msg;
 }
+
+// ── JSONP helper (bypasses CORS) ──────────────────────────────
+function jsonpGet(url, action, params, callback){
+  var cbName = 'cb_' + Math.random().toString(36).slice(2);
+  var script = document.createElement('script');
+  var done = false;
+  var timer = setTimeout(function(){
+    if(done) return;
+    done = true;
+    delete window[cbName];
+    if(script.parentNode) script.parentNode.removeChild(script);
+    callback(null, 'timeout');
+  }, 12000);
+  window[cbName] = function(data){
+    if(done) return;
+    done = true;
+    clearTimeout(timer);
+    delete window[cbName];
+    if(script.parentNode) script.parentNode.removeChild(script);
+    callback(data, null);
+  };
+  var qs = '?action='+action+'&callback='+cbName;
+  Object.keys(params).forEach(function(k){ qs += '&'+k+'='+encodeURIComponent(params[k]); });
+  script.src = url + qs;
+  script.onerror = function(){
+    if(done) return;
+    done = true;
+    clearTimeout(timer);
+    delete window[cbName];
+    callback(null, 'error');
+  };
+  document.head.appendChild(script);
+}
+
 function loadData(){
   setSyncStatus('saving','Loading...');
-  fetch(apiUrl+'?action=getData', {redirect:'follow'})
-    .then(function(r){return r.json();})
-    .then(function(d){
-      if(d.error)throw new Error(d.error);
-      appData=d;
-      applyAutoStatus();
-      setSyncStatus('saved','Synced');
-      document.getElementById('loadingMsg').style.display='none';
-      render();
-    })
-    .catch(function(err){
+  jsonpGet(apiUrl, 'getData', {}, function(d, err){
+    if(err || !d){
       setSyncStatus('error','Error');
-      document.getElementById('loadingMsg').innerHTML='<div style="color:#C0392B;font-size:13px">Could not load data.<br><small>'+err.message+'</small><br><br><button onclick="showConfig()" style="background:var(--orange);color:white;border:none;padding:8px 16px;border-radius:8px;font-size:13px;cursor:pointer;">Check URL ⚙</button></div>';
-    });
+      document.getElementById('loadingMsg').innerHTML='<div style="color:#C0392B;font-size:13px">Could not load data.<br><small>'+err+'</small><br><br><button onclick="showConfig()" style="background:var(--orange);color:white;border:none;padding:8px 16px;border-radius:8px;font-size:13px;cursor:pointer;">Check URL ⚙</button></div>';
+      return;
+    }
+    appData=d;
+    applyAutoStatus();
+    setSyncStatus('saved','Synced');
+    document.getElementById('loadingMsg').style.display='none';
+    render();
+  });
 }
 function scheduleSave(){
   setSyncStatus('saving','Saving...');
@@ -348,16 +376,10 @@ function scheduleSave(){
   saveTimer=setTimeout(pushData,800);
 }
 function pushData(){
-  var payload = JSON.stringify({action:'saveData',data:appData});
-  fetch(apiUrl, {
-    method:'POST',
-    redirect:'follow',
-    headers:{'Content-Type':'text/plain;charset=utf-8'},
-    body: payload
-  })
-  .then(function(r){return r.json();})
-  .then(function(d){if(d.error)throw new Error(d.error);setSyncStatus('saved','Saved');})
-  .catch(function(){setSyncStatus('error','Save failed');});
+  jsonpGet(apiUrl, 'saveData', {data: JSON.stringify(appData)}, function(d, err){
+    if(err) setSyncStatus('error','Save failed');
+    else setSyncStatus('saved','Saved');
+  });
 }
 
 // ── Date helpers ──────────────────────────────────────────────
