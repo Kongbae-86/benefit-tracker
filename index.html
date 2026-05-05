@@ -605,6 +605,7 @@ function toggleArchiveCard(){
   card.archived=!card.archived;
   closeSheet();render();scheduleSave();
 }
+function toggleCard(id){
   openCards[id]=openCards[id]===false?true:false;
   var body=document.getElementById('body-'+id);
   var chevron=body?body.previousElementSibling.querySelector('.chevron'):null;
